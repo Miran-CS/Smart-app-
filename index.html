@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>کێڵگەی پەلەوەری یارسا</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .table-container {
+      width: 95%;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .label {
+      font-weight: bold;
+      text-align: left;
+      padding-left: 10px;
+    }
+
+    .orange { background-color: #f7b77d; }
+    .yellow { background-color: #fffab1; }
+    .lightblue { background-color: #d3f4ff; }
+    .cyan { background-color: #94dff0; }
+    .green { background-color: #c3e9be; }
+    .red { background-color: #fbb; }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 10px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 150px;
+    }
+
+    #results {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>کێڵگەی پەلەوەری یارسا</h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>کیلۆ</th>
+          <th>کیلۆ</th>
+          <th>کیلۆ</th>
+          <th>کیلۆ</th>
+        </tr>
+      </thead>
+      <tbody id="weightTable">
+        <!-- Rows inserted by JavaScript -->
+      </tbody>
+      <tfoot>
+        <tr><td colspan="4" class="label orange">نرخ<input type="number" id="priceInput"></td></tr>
+        <tr><td colspan="4" class="label yellow">کێشی قەفەزی بەتاڵ <input type="number" id="emptyCageWeightInput"></td></tr>
+        <tr><td colspan="4" class="label lightblue">ژمارەی قەفەزەکان <input type="number" id="numCagesInput"></td></tr>
+        <tr><td colspan="4" class="label cyan">کۆی کێشی قەفەزە بەتاڵەکان <span id="totalEmptyWeight">0</span>کیلۆ</td></tr>
+        <tr><td colspan="4" class="label green">کۆی کێشی صافی <span id="netWeight">0</span>کیلۆ</td></tr>
+        <tr><td colspan="4" class="label red">کۆی گشتی پارە <span id="totalPrice">0</span> دینار</td></tr>
+      </tfoot>
+    </table>
+
+    <div class="inputs">
+      <button onclick="calculateTotals()">Calculate</button>
+    </div>
+  </div>
+
+  <script>
+    // Generate 20 rows × 4 columns
+    const tableBody = document.getElementById('weightTable');
+    for (let i = 0; i < 30; i++) {
+      const row = document.createElement('tr');
+      for (let j = 0; j < 4; j++) {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'kg-input';
+        // Add event listener for Enter key to move down
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const inputs = Array.from(document.querySelectorAll('.kg-input'));
+            const colCount = 4;
+            const idx = inputs.indexOf(e.target);
+            if (idx !== -1) {
+              const nextIdx = idx + colCount;
+              if (nextIdx < inputs.length) {
+                inputs[nextIdx].focus();
+              }
+            }
+          }
+        });
+        cell.appendChild(input);
+        row.appendChild(cell);
+      }
+      tableBody.appendChild(row);
+    }
+
+    function calculateTotals() {
+      const inputs = document.querySelectorAll('.kg-input');
+      let totalWeight = 0;
+      inputs.forEach(input => {
+        totalWeight += parseFloat(input.value) || 0;
+      });
+
+      const price = parseFloat(document.getElementById('priceInput').value) || 0;
+      const emptyCageWeight = parseFloat(document.getElementById('emptyCageWeightInput').value) || 0;
+      const numCages = parseFloat(document.getElementById('numCagesInput').value) || 0;
+
+      const totalEmptyWeight = emptyCageWeight * numCages;
+      const netWeight = totalWeight - totalEmptyWeight;
+      const totalPrice = netWeight * price;
+
+      document.getElementById('totalEmptyWeight').textContent = totalEmptyWeight.toFixed(2);
+      document.getElementById('netWeight').textContent = netWeight.toFixed(2);
+      document.getElementById('totalPrice').textContent = totalPrice.toLocaleString('en-US', {maximumFractionDigits: 2});
+    }
+  </script>
+</body>
+</html>

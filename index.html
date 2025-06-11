@@ -2,16 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>کێڵگەی پەلەوەری یارسا</title>
+  <title>وەصڵی زیرەک</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
       padding: 20px;
-      background: #f5f5f5;
+      /* Remove static background */
+      /* background: #f5f5f5; */
+      font-size: 1.5em;
+      /* Animated gradient background */
+      background: linear-gradient(-45deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     h1 {
       text-align: center;
+      font-size: 2.2em; /* Larger heading */
     }
 
     .table-container {
@@ -31,21 +50,24 @@
 
     th, td {
       border: 1px solid #ccc;
-      padding: 8px;
+      padding: 12px; /* Slightly larger padding */
       text-align: center;
+      font-size: 1.5em; /* Ensure table text is large */
     }
 
     input[type="number"] {
       width: 100%;
       box-sizing: border-box;
-      padding: 5px;
+      padding: 10px; /* Larger input padding */
       text-align: center;
+      font-size: 1em; /* Larger input text */
     }
 
     .label {
       font-weight: bold;
       text-align: left;
       padding-left: 10px;
+      font-size: 1em; /* Larger label text */
     }
 
     .orange { background-color: #f7b77d; }
@@ -70,16 +92,21 @@
       border-radius: 6px;
       cursor: pointer;
       width: 150px;
+      font-size: 1em; /* Make button text large */
     }
 
     #results {
       margin-top: 10px;
       font-weight: bold;
     }
+
+    .input-left {
+      text-align: left !important;
+    }
   </style>
 </head>
 <body>
-  <h1>کێڵگەی پەلەوەری یارسا</h1>
+  <h1>وەصڵی زیرەک بۆ کاتی فرۆشتنی مریشک</h1>
   <div class="table-container">
     <table>
       <thead>
@@ -94,9 +121,9 @@
         <!-- Rows inserted by JavaScript -->
       </tbody>
       <tfoot>
-        <tr><td colspan="4" class="label orange">نرخ<input type="number" id="priceInput"></td></tr>
-        <tr><td colspan="4" class="label yellow">کێشی قەفەزی بەتاڵ <input type="number" id="emptyCageWeightInput"></td></tr>
-        <tr><td colspan="4" class="label lightblue">ژمارەی قەفەزەکان <input type="number" id="numCagesInput"></td></tr>
+        <tr><td colspan="4" class="label orange">نرخ<input type="number" id="priceInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label yellow">کێشی قەفەزی بەتاڵ <input type="number" id="emptyCageWeightInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label lightblue">ژمارەی قەفەزەکان <input type="number" id="numCagesInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label cyan">کۆی کێشی قەفەزە بەتاڵەکان <span id="totalEmptyWeight">0</span>کیلۆ</td></tr>
         <tr><td colspan="4" class="label green">کۆی کێشی صافی <span id="netWeight">0</span>کیلۆ</td></tr>
         <tr><td colspan="4" class="label red">کۆی گشتی پارە <span id="totalPrice">0</span> دینار</td></tr>
@@ -104,7 +131,7 @@
     </table>
 
     <div class="inputs">
-      <button onclick="calculateTotals()">Calculate</button>
+      <button onclick="calculateTotals()">حیساب بکە</button>
     </div>
   </div>
 

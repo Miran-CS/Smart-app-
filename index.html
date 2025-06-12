@@ -1,45 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ku">
 <head>
   <meta charset="UTF-8">
   <title>وەصڵی زیرەک</title>
   <style>
-    body {
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      padding: 20px;
-      /* Remove static background */
-      /* background: #f5f5f5; */
-      font-size: 1.5em;
-      /* Animated gradient background */
-      background: linear-gradient(-45deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
+    * {
+      box-sizing: border-box;
     }
 
-    @keyframes gradientBG {
-      0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-      100% {
-        background-position: 0% 50%;
-      }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #89f7fe, #66a6ff, #fcb69f, #ffecd2);
+      background-size: 500% 500%;
+      animation: moveBackground 18s ease infinite;
+      font-size: 1.1em;
+    }
+
+    @keyframes moveBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h1 {
       text-align: center;
-      font-size: 2.2em; /* Larger heading */
+      color: #ffffff;
+      margin: 40px 0 20px;
+      font-size: 2.8em;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
     }
 
     .table-container {
-      width: 95%;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      max-width: 1100px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
     }
 
     table {
@@ -49,50 +49,59 @@
     }
 
     th, td {
-      border: 1px solid #ccc;
-      padding: 12px; /* Slightly larger padding */
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px;
       text-align: center;
-      font-size: 1.5em; /* Ensure table text is large */
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    th {
+      font-weight: bold;
+      background-color: rgba(255,255,255,0.35);
     }
 
     input[type="number"] {
       width: 100%;
-      box-sizing: border-box;
-      padding: 10px; /* Larger input padding */
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       text-align: center;
-      font-size: 1em; /* Larger input text */
+      background: rgba(255, 255, 255, 0.8);
     }
 
     .label {
       font-weight: bold;
-      text-align: left;
-      padding-left: 10px;
-      font-size: 1em; /* Larger label text */
+      padding: 10px 0;
+      font-size: 1em;
     }
 
-    .orange { background-color: #f7b77d; }
-    .yellow { background-color: #fffab1; }
-    .lightblue { background-color: #d3f4ff; }
-    .cyan { background-color: #94dff0; }
-    .green { background-color: #c3e9be; }
-    .red { background-color: #fbb; }
+    .orange { background-color: #ffe0b2; }
+    .yellow { background-color: #fff9c4; }
+    .lightblue { background-color: #e0f7fa; }
+    .cyan { background-color: #b2ebf2; }
+    .green { background-color: #dcedc8; }
+    .red { background-color: #ffcdd2; }
 
     .inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
+      text-align: center;
+      margin-top: 20px;
     }
 
     button {
-      padding: 10px 16px;
-      background-color: #4caf50;
-      color: white;
+      padding: 14px 28px;
+      background: #2196f3;
       border: none;
-      border-radius: 6px;
+      color: white;
+      font-size: 1.1em;
+      border-radius: 10px;
       cursor: pointer;
-      width: 150px;
-      font-size: 1em; /* Make button text large */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #1976d2;
     }
 
     #results {
@@ -100,8 +109,19 @@
       font-weight: bold;
     }
 
-    .input-left {
-      text-align: left !important;
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      .table-container {
+        padding: 15px;
+      }
+
+      button {
+        width: 100%;
+        font-size: 1em;
+      }
     }
   </style>
 </head>
@@ -117,15 +137,13 @@
           <th>کیلۆ</th>
         </tr>
       </thead>
-      <tbody id="weightTable">
-        <!-- Rows inserted by JavaScript -->
-      </tbody>
+      <tbody id="weightTable"></tbody>
       <tfoot>
-        <tr><td colspan="4" class="label orange">نرخ<input type="number" id="priceInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label orange">نرخ <input type="number" id="priceInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label yellow">کێشی قەفەزی بەتاڵ <input type="number" id="emptyCageWeightInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label lightblue">ژمارەی قەفەزەکان <input type="number" id="numCagesInput" class="input-left"></td></tr>
-        <tr><td colspan="4" class="label cyan">کۆی کێشی قەفەزە بەتاڵەکان <span id="totalEmptyWeight">0</span>کیلۆ</td></tr>
-        <tr><td colspan="4" class="label green">کۆی کێشی صافی <span id="netWeight">0</span>کیلۆ</td></tr>
+        <tr><td colspan="4" class="label cyan">کۆی کێشی قەفەزە بەتاڵەکان <span id="totalEmptyWeight">0</span> کیلۆ</td></tr>
+        <tr><td colspan="4" class="label green">کۆی کێشی صافی <span id="netWeight">0</span> کیلۆ</td></tr>
         <tr><td colspan="4" class="label red">کۆی گشتی پارە <span id="totalPrice">0</span> دینار</td></tr>
       </tfoot>
     </table>
@@ -136,7 +154,6 @@
   </div>
 
   <script>
-    // Generate 20 rows × 4 columns
     const tableBody = document.getElementById('weightTable');
     for (let i = 0; i < 40; i++) {
       const row = document.createElement('tr');
@@ -145,7 +162,6 @@
         const input = document.createElement('input');
         input.type = 'number';
         input.className = 'kg-input';
-        // Add event listener for Enter key to move down
         input.addEventListener('keydown', function(e) {
           if (e.key === 'Enter') {
             e.preventDefault();

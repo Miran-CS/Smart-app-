@@ -11,7 +11,7 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Calibri', Arial, sans-serif;
       background: linear-gradient(120deg, #89f7fe, #66a6ff, #fcb69f, #ffecd2);
       background-size: 500% 500%;
       animation: moveBackground 18s ease infinite;
@@ -60,7 +60,7 @@
       background-color: rgba(255,255,255,0.35);
     }
 
-    input[type="number"] {
+    input[type="number"], input[type="text"], input[type="date"] {
       width: 100%;
       padding: 10px;
       font-size: 1em;
@@ -78,7 +78,7 @@
 
     .orange { background-color: #ffe0b2; }
     .yellow { background-color: #fff9c4; }
-    .lightblue { background-color: #e0f7fa; }
+    .lightblue { background-color: #e0fae3; }
     .cyan { background-color: #b2ebf2; }
     .green { background-color: #dcedc8; }
     .red { background-color: #ffcdd2; }
@@ -127,6 +127,9 @@
 </head>
 <body>
   <h1>وەصڵی زیرەک بۆ کاتی فرۆشتنی مریشک</h1>
+  <div style="display: flex; justify-content: center; margin-bottom: 25px;">
+    <img src="1.jpg" alt="Nice Place" style="max-width: 95%; border-radius: 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.18); object-fit: cover; max-height: 320px;">
+  </div>
   <div class="table-container">
     <table>
       <thead>
@@ -139,17 +142,38 @@
       </thead>
       <tbody id="weightTable"></tbody>
       <tfoot>
+        <tr><td colspan="4" class="label cyan">ناوی تەواو <input type="text" id="fullNameInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label cyan">ژمارەی مۆبایل <input type="text" id="mobileInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label cyan">ژمارەی ئۆتۆمبێل <input type="text" id="carNumberInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label cyan">ناونیشان <input type="text" id="addressInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label cyan">ڕێکەوت <input type="date" id="dateInput" class="input-left"></td></tr>
+        <tr><td colspan="4" class="label cyan">ژمارەی وەصڵ <input type="number" id="pageNumberInput" class="input-left"></td> </tr>
         <tr><td colspan="4" class="label orange">نرخ <input type="number" id="priceInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label yellow">کێشی قەفەزی بەتاڵ <input type="number" id="emptyCageWeightInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label lightblue">ژمارەی قەفەزەکان <input type="number" id="numCagesInput" class="input-left"></td></tr>
         <tr><td colspan="4" class="label cyan">کۆی کێشی قەفەزە بەتاڵەکان <span id="totalEmptyWeight">0</span> کیلۆ</td></tr>
         <tr><td colspan="4" class="label green">کۆی کێشی صافی <span id="netWeight">0</span> کیلۆ</td></tr>
         <tr><td colspan="4" class="label red">کۆی گشتی پارە <span id="totalPrice">0</span> دینار</td></tr>
+        <tr>
+          <td colspan="4" class="label cyan">
+            تێبینی <input type="text" id="noteInput" class="input-left">
+          </td>
+        </tr>
       </tfoot>
     </table>
 
     <div class="inputs">
       <button onclick="calculateTotals()">حیساب بکە</button>
+      <button onclick="saveResults()">پاشەکەوت بکە</button>
+    </div>
+  </div>
+
+  <!-- Saved Records Section -->
+  <div id="savedRecordsSection" style="max-width: 1100px; margin: 40px auto 0; padding: 30px; background: rgba(255,255,255,0.25); border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.18);">
+    <h2 style="text-align:center; color:#1976d2; margin-bottom: 18px;">وەصڵە پاشەکەوتکراوەکان</h2>
+    <div id="savedRecordsList" style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center;"></div>
+    <div style="margin-top: 24px; text-align: center; font-size: 1.3em; font-weight: bold; color: #388e3c;">
+      کۆی گشتی پارەی هەموو وەصڵەکان: <span id="allTotalMoney">0</span> دینار
     </div>
   </div>
 
@@ -200,6 +224,97 @@
       document.getElementById('totalEmptyWeight').textContent = totalEmptyWeight.toFixed(2);
       document.getElementById('netWeight').textContent = netWeight.toFixed(2);
       document.getElementById('totalPrice').textContent = totalPrice.toLocaleString('en-US', {maximumFractionDigits: 2});
+    }
+
+    function saveResults() {
+      const totalEmptyWeight = document.getElementById('totalEmptyWeight').textContent;
+      const netWeight = document.getElementById('netWeight').textContent;
+      const totalPrice = document.getElementById('totalPrice').textContent;
+      const price = document.getElementById('priceInput').value;
+      const emptyCageWeight = document.getElementById('emptyCageWeightInput').value;
+      const numCages = document.getElementById('numCagesInput').value;
+      const pageNumber = document.getElementById('pageNumberInput').value;
+      const fullName = document.getElementById('fullNameInput').value;
+      const mobile = document.getElementById('mobileInput').value;
+      const carNumber = document.getElementById('carNumberInput').value;
+      const address = document.getElementById('addressInput').value;
+      const date = document.getElementById('dateInput').value;
+      const note = document.getElementById('noteInput').value; // <-- Add this line
+
+      // Save to Saved Records Section (localStorage)
+      addSavedRecord({
+        fullName, mobile, carNumber, address, date, pageNumber, price, emptyCageWeight, numCages, totalEmptyWeight, netWeight, totalPrice, note // <-- Add note here
+      });
+
+      // No file download!
+    }
+
+    // --- Saved Records Logic ---
+    let savedRecords = [];
+    // Load from localStorage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const data = localStorage.getItem('savedRecords');
+      if (data) {
+        try {
+          savedRecords = JSON.parse(data);
+        } catch (e) {
+          savedRecords = [];
+        }
+        renderSavedRecords();
+      }
+    });
+
+    function addSavedRecord(record) {
+      savedRecords.push(record);
+      localStorage.setItem('savedRecords', JSON.stringify(savedRecords));
+      renderSavedRecords();
+    }
+
+    function renderSavedRecords() {
+      const list = document.getElementById('savedRecordsList');
+      list.innerHTML = '';
+      let allTotal = 0;
+      savedRecords.forEach((rec, idx) => {
+        // Remove commas from totalPrice for calculation
+        let priceNum = parseFloat((rec.totalPrice+'').replace(/,/g, '')) || 0;
+        allTotal += priceNum;
+        const card = document.createElement('div');
+        card.style.background = 'linear-gradient(120deg, #e0f7fa 60%, #fff9c4 100%)';
+        card.style.borderRadius = '14px';
+        card.style.boxShadow = '0 4px 16px rgba(0,0,0,0.10)';
+        card.style.padding = '18px 22px';
+        card.style.minWidth = '260px';
+        card.style.maxWidth = '320px';
+        card.style.flex = '1 1 260px';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.alignItems = 'flex-start';
+        card.style.position = 'relative';
+        card.innerHTML = `
+          <button class="delete-btn" onclick="deleteRecord(${idx})" title="سڕینەوە">&times;</button>
+          <div style="font-size:1.2em; font-weight:bold; color:#1976d2; margin-bottom:8px;">${rec.fullName || '---'}</div>
+          <div style="margin-bottom:6px;"><b>ژمارەی مۆبایل:</b> ${rec.mobile || '-'}</div>
+          <div style="margin-bottom:6px;"><b>ژمارەی ئۆتۆمبێل:</b> ${rec.carNumber || '-'}</div>
+          <div style="margin-bottom:6px;"><b>ناونیشان:</b> ${rec.address || '-'}</div>
+          <div style="margin-bottom:6px;"><b>ڕێکەوت:</b> ${rec.date || '-'}</div>
+          <div style="margin-bottom:6px;"><b>ژمارەی وەصڵ:</b> ${rec.pageNumber || '-'}</div>
+          <div style="margin-bottom:6px;"><b>نرخ:</b> ${rec.price || '-'}</div>
+          <div style="margin-bottom:6px;"><b>کێشی قەفەزی بەتاڵ:</b> ${rec.emptyCageWeight || '-'}</div>
+          <div style="margin-bottom:6px;"><b>ژمارەی قەفەزەکان:</b> ${rec.numCages || '-'}</div>
+          <div style="margin-bottom:6px;"><b>کۆی کێشی قەفەزە بەتاڵەکان:</b> ${rec.totalEmptyWeight || '-'}</div>
+          <div style="margin-bottom:6px;"><b>کۆی کێشی صافی:</b> ${rec.netWeight || '-'}</div>
+          <div style="margin-bottom:6px; color:#d32f2f; font-weight:bold;"><b>کۆی گشتی پارە:</b> ${rec.totalPrice || '0'} دینار</div>
+          <div style="margin-bottom:6px; color:#555;"><b>تێبینی:</b> ${rec.note || '-'}</div>
+        `;
+        list.appendChild(card);
+      });
+      document.getElementById('allTotalMoney').textContent = allTotal.toLocaleString('en-US', {maximumFractionDigits: 2});
+    }
+
+    function deleteRecord(idx) {
+      savedRecords.splice(idx, 1);
+      localStorage.setItem('savedRecords', JSON.stringify(savedRecords));
+      renderSavedRecords();
     }
   </script>
 </body>

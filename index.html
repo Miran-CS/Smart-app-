@@ -287,6 +287,100 @@
   user-select: none;
   letter-spacing: 0.08em;
 }
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+#clearInfoBtn {
+  background: #f44336 !important;
+  color: #fff !important;
+}
+#clearInfoBtn:hover, #clearInfoBtn:focus {
+  background: #b71c1c !important;
+  color: #fff !important;
+}
+textarea#noteInput:focus {
+  border: 1.5px solid #1976d2;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+}
+textarea#noteInput:hover {
+  border: 1.5px solid #2196f3;
+  background: #f1f7fd;
+}
+.cell-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;   /* <-- changed from left: 8px; */
+  left: auto;
+  background: #e3f2fd;
+  color: #1976d2;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 50%;
+  padding: 0.18em 0.65em;
+  box-shadow: 0 1px 4px rgba(25,118,210,0.08);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.85;
+  border: 1px solid #bbdefb;
+  transition: background 0.2s;
+}
+td:hover .cell-badge {
+  background: #bbdefb;
+}
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #savedRecordsSection,
+  #savedRecordsSection * {
+    visibility: visible !important;
+  }
+  #savedRecordsSection {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+    background: none !important;
+    padding: 0 !important;
+    font-size: 0.8rem !important;
+    padding: 0.3rem 0.2rem !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+  }
+  #savedRecordsList {
+    gap: 0.3rem !important;
+    grid-template-columns: 1fr 1fr 1fr !important; /* 3 columns per row */
+   
+  }
+  .record-card {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.9em !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    box-shadow: none !important;
+      border: 1.5px solid #222 !important;
+  }
+  .btn-row,
+  #printBackupsBtn,
+  .delete-btn {
+    display: none !important;
+  }
+  #savedRecordsSection:empty,
+  #savedRecordsSection:empty * {
+    display: none !important;
+  }
+  #savedRecordsList:empty,
+  #savedRecordsList:empty * {
+    display: none !important;
+  }
+}
     </style>
   </head>
   <body>
@@ -383,16 +477,18 @@
           </tr>
           <tr class="cyan">
             <td colspan="4">
-              <span class="label">تێبینی</span>
+              <label class="label" for="noteInput">تێبینی</label>
               <input type="text" id="noteInput" />
             </td>
           </tr>
         </tfoot>
       </table>
 
-      <div style="text-align: center; gap: 1rem; display: flex; flex-wrap: wrap; justify-content: center;">
-        <button class="btn" onclick="calculateTotals()">حیساب بکە</button>
-        <button class="btn" onclick="saveResults()">پاشەکەوت بکە</button>
+      <div class="btn-row">
+        <button type="button" class="btn" id="calcBtn">حیساب بکە</button>
+        <button type="button" class="btn" id="saveBtn">پاشەکەوت بکە</button>
+        <button type="button" class="btn" id="clearInfoBtn" style="background:#f44336;color:#fff;">پاککردنەوەی زانیاری</button>
+        <button type="button" class="btn" id="printBackupsBtn">چاپی وەصڵەکان</button>
       </div>
     </section>
 
@@ -414,32 +510,42 @@
          JavaScript: dynamic rows, calculations, localStorage handling
     ============================================================= -->
     <script>
-      // -------- Generate 40×4 input grid --------
-      const tableBody = document.getElementById("weightTable");
-      for (let i = 0; i < 35; i++) {
-        const row = document.createElement("tr");
-        for (let j = 0; j < 4; j++) {
-          const cell = document.createElement("td");
-          const input = document.createElement("input");
-          input.type = "number";
-          input.className = "kg-input";
-          input.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              const inputs = Array.from(document.querySelectorAll(".kg-input"));
-              const idx = inputs.indexOf(e.target);
-              if (idx !== -1 && idx + 4 < inputs.length) {
-                inputs[idx + 4].focus();
-              }
-            }
-          });
-          cell.appendChild(input);
-          row.appendChild(cell);
-        }
-        tableBody.appendChild(row);
-      }
+      // At the top of your script, only once:
+const rows = 35;
+const cols = 4;
 
-      // -------- Calculation Logic --------
+// -------- Generate 35×4 input grid --------
+      // Generate 35x4 input grid with cell numbers (numbering top to bottom, then next column)
+const tableBody = document.getElementById("weightTable");
+tableBody.innerHTML = "";
+const row = 35;
+const col = 4;
+for (let i = 0; i < rows; i++) {
+  const row = document.createElement("tr");
+  for (let j = 0; j < cols; j++) {
+    const cell = document.createElement("td");
+    cell.style.position = "relative";
+    // Cell number: top to bottom, then next column
+    const cellNum = j * rows + i + 1;
+    const badge = document.createElement("span");
+    badge.textContent = cellNum;
+    badge.className = "cell-badge";
+    cell.appendChild(badge);
+    // Input
+    const input = document.createElement("input");
+    input.type = "number";
+    input.className = "kg-input";
+    input.min = "0";
+    input.step = "any";
+    input.style.textAlign = "center";
+    input.setAttribute("aria-label", "کیلۆ");
+    cell.appendChild(input);
+    row.appendChild(cell);
+  }
+  tableBody.appendChild(row);
+}
+
+// -------- Calculation Logic --------
       function calculateTotals() {
         const inputs = document.querySelectorAll(".kg-input");
         let totalWeight = 0;
@@ -482,27 +588,64 @@
         }
       });
 
-      function saveResults() {
-        const record = {
-          fullName: document.getElementById("fullNameInput").value.trim() || "---",
-          mobile: document.getElementById("mobileInput").value.trim() || "-",
-          carNumber: document.getElementById("carNumberInput").value.trim() || "-",
-          address: document.getElementById("addressInput").value.trim() || "-",
-          date: document.getElementById("dateInput").value || "-",
-          pageNumber: document.getElementById("pageNumberInput").value || "-",
-          price: document.getElementById("priceInput").value || "-",
-          emptyCageWeight: document.getElementById("emptyCageWeightInput").value || "-",
-          numCages: document.getElementById("numCagesInput").value || "-",
-          totalEmptyWeight: document.getElementById("totalEmptyWeight").textContent,
-          netWeight: document.getElementById("netWeight").textContent,
-          totalPrice: document.getElementById("totalPrice").textContent,
-          note: document.getElementById("noteInput").value.trim() || "-",
-        };
+      document.getElementById("calcBtn").onclick = function() {
+  // Check required info fields
+  const fullName = document.getElementById("fullNameInput").value.trim();
+  const mobile = document.getElementById("mobileInput").value.trim();
+  const date = document.getElementById("dateInput").value.trim();
+  const price = document.getElementById("priceInput").value.trim();
 
-        savedRecords.push(record);
-        localStorage.setItem(savedRecordsKey, JSON.stringify(savedRecords));
-        renderSavedRecords();
-      }
+  if (!fullName || !mobile || !date || !price) {
+    alert("ناتوانرێت حیساب بکرێت! تکایە زانیاری گرنگەکان پڕبکەوە.");
+    return;
+  }
+  calculateTotals();
+};
+
+      function saveResults() {
+  const record = {
+    fullName: document.getElementById("fullNameInput").value.trim() || "---",
+    mobile: document.getElementById("mobileInput").value.trim() || "-",
+    carNumber: document.getElementById("carNumberInput").value.trim() || "-",
+    address: document.getElementById("addressInput").value.trim() || "-",
+    date: document.getElementById("dateInput").value || "-",
+    pageNumber: document.getElementById("pageNumberInput").value || "-",
+    price: document.getElementById("priceInput").value || "-",
+    emptyCageWeight: document.getElementById("emptyCageWeightInput").value || "-",
+    numCages: document.getElementById("numCagesInput").value || "-",
+    totalEmptyWeight: document.getElementById("totalEmptyWeight").textContent,
+    netWeight: document.getElementById("netWeight").textContent,
+    totalPrice: document.getElementById("totalPrice").textContent,
+    note: document.getElementById("noteInput").value.trim() || "-",
+  };
+
+  // Validation: require at least name, mobile, date, price, netWeight, totalPrice
+  if (
+    !record.fullName ||
+    record.fullName === "---" ||
+    !record.mobile ||
+    record.mobile === "-" ||
+    !record.date ||
+    record.date === "-" ||
+    !record.price ||
+    record.price === "-" ||
+    !record.netWeight ||
+    record.netWeight === "0.00" ||
+    !record.totalPrice ||
+    record.totalPrice === "0.00"
+  ) {
+    alert("تکایە هەموو زانیاری گرنگەکان پڕبکەوە و حیساب بکە پێش پاشەکەوتکردن!");
+    return;
+  }
+
+  savedRecords.push(record);
+  localStorage.setItem(savedRecordsKey, JSON.stringify(savedRecords));
+  renderSavedRecords();
+
+  // No message box after saving
+}
+
+      document.getElementById("saveBtn").onclick = saveResults;
 
       function renderSavedRecords() {
         const list = document.getElementById("savedRecordsList");
@@ -539,6 +682,7 @@
         document.getElementById("allTotalMoney").textContent = grandTotal.toLocaleString("en-US", {
           maximumFractionDigits: 2,
         });
+        updatePrintButtonVisibility(); // Update print button visibility
       }
 
       function deleteRecord(idx) {
@@ -556,6 +700,103 @@
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+document.getElementById("clearInfoBtn").onclick = function() {
+  [
+    "fullNameInput",
+    "mobileInput",
+    "carNumberInput",
+    "addressInput",
+    "dateInput",
+    "pageNumberInput",
+    "priceInput",
+    "emptyCageWeightInput",
+    "numCagesInput",
+    "noteInput"
+  ].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  // Clear all kg-inputs
+  document.querySelectorAll(".kg-input").forEach(function(input) {
+    input.value = "";
+  });
+  document.getElementById("totalEmptyWeight").textContent = "0";
+  document.getElementById("netWeight").textContent = "0";
+  document.getElementById("totalPrice").textContent = "0";
+};
+
+// Move to next input on Enter key for all info fields
+[
+  "fullNameInput",
+  "mobileInput",
+  "carNumberInput",
+  "addressInput",
+  "dateInput",
+  "pageNumberInput",
+  "priceInput",
+  "emptyCageWeightInput",
+  "numCagesInput",
+  "noteInput"
+].forEach((id, idx, arr) => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        // Focus next input if exists
+        if (arr[idx + 1]) {
+          const nextEl = document.getElementById(arr[idx + 1]);
+          if (nextEl) nextEl.focus();
+        }
+      }
+    });
+  }
+});
+
+// Move to next input on Enter key for all table (kg-input) boxes (top to bottom, then next column)
+const kgInputs = Array.from(document.querySelectorAll(".kg-input"));
+
+kgInputs.forEach((input, idx) => {
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const row = Math.floor(idx / cols);
+      const col = idx % cols;
+      // Move to next row in same column
+      if (row < rows - 1) {
+        const nextIdx = (row + 1) * cols + col;
+        if (kgInputs[nextIdx]) {
+          kgInputs[nextIdx].focus();
+        }
+      } else {
+        // If last row, move to first row of next column
+        const nextCol = col + 1;
+        if (nextCol < cols) {
+          const nextIdx = nextCol;
+          if (kgInputs[nextIdx]) {
+            kgInputs[nextIdx].focus();
+          }
+        }
+      }
+    }
+  });
+});
+
+document.getElementById("printBackupsBtn").onclick = function () {
+  window.print();
+};
+
+function updatePrintButtonVisibility() {
+  const list = document.getElementById('savedRecordsList');
+  const btn = document.getElementById('printBackupsBtn');
+  if (list.children.length === 0) {
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = '';
+  }
+}
+// Call this function after rendering or updating saved records
     </script>
   </body>
 </html>
